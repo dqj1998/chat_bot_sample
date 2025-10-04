@@ -1,3 +1,100 @@
+import os
+from dataclasses import dataclass
+from typing import List, Dict, Any
+
+DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "people_graph.txt")
+
+
+@dataclass
+class Person:
+    name: str
+    department: str
+    preferred_contact: Dict[str, str]
+    expertise: List[str]
+    influences: Dict[str, float]
+
+
+class PeopleGraph:
+    def __init__(self, people: List[Person]):
+        self.people = people
+        self._by_name = {p.name: p for p in people}
+
+    @classmethod
+    def from_file(cls, path: str = DATA_PATH) -> "PeopleGraph":
+        people: List[Person] = []
+        if not os.path.exists(path):
+            return cls(people)
+        chunks: List[str] = []
+        with open(path, "r", encoding="utf-8") as f:
+            block: List[str] = []
+            for line in f:
+                line = line.rstrip("\n")
+                if line.strip() == "---":
+                    if block:
+                        chunks.append("\n".join(block))
+                        block = []
+                else:
+                    block.append(line)
+            if block:
+                chunks.append("\n".join(block))
+
+        for ch in chunks:
+            lines = [l.strip() for l in ch.splitlines() if l.strip()]
+            name = department = ""
+            preferred_contact: Dict[str, str] = {}
+            expertise: List[str] = []
+            influences: Dict[str, float] = {}
+            i = 0
+            while i < len(lines):
+                line = lines[i]
+                if line.startswith("name:"):
+                    name = line.split(":", 1)[1].strip()
+                elif line.startswith("department:"):
+                    department = line.split(":", 1)[1].strip()
+                elif line.startswith("preferred_contact:"):
+                    val = line.split(":", 1)[1].strip()
+                    if ":" in val:
+                        t, v = val.split(":", 1)
+                        preferred_contact = {"type": t.strip(), "value": v.strip()}
+                elif line.startswith("contacts:"):
+                    i += 1
+                    while i < len(lines) and lines[i].startswith("-"):
+                        i += 1
+                    i -= 1
+                elif line.startswith("influences:"):
+                    i += 1
+                    while i < len(lines) and lines[i].startswith("-"):
+                        item = lines[i][1:].strip()
+                        if ":" in item:
+                            n, s = item.split(":", 1)
+                            try:
+                                influences[n.strip()] = float(s.strip())
+                            except Exception:
+                                pass
+                        i += 1
+                    i -= 1
+                elif line.startswith("expertise:"):
+                    val = line.split(":", 1)[1].strip()
+                    expertise = [x.strip() for x in val.split(",") if x.strip()]
+                i += 1
+            if name:
+                people.append(Person(name=name, department=department, preferred_contact=preferred_contact, expertise=expertise, influences=influences))
+        return cls(people)
+
+    def rank_candidates(self, results: List[Any], keywords: List[str]) -> List[Person]:
+        kws = {k.lower() for k in keywords}
+        scored: List[tuple[Person, float]] = []
+        for p in self.people:
+            expertise_score = sum(1 for e in p.expertise if e.lower() in kws)
+            dept_bonus = 0.5 if any(getattr(r, "department", "").lower() == p.department.lower() for r in results) else 0
+            influence = sum(self._by_name.get(n, Person(n, "", {}, [], {})).influences.get(p.name, 0.0) for n in p.influences.keys())
+            score = expertise_score + dept_bonus + 0.1 * influence
+            scored.append((p, score))
+        scored.sort(key=lambda x: x[1], reverse=True)
+        return [p for p, _ in scored] if scored else []
+
+    def fallback(self) -> Person:
+        return self.people[0] if self.people else Person(name="TBD", department="TBD", preferred_contact={"type": "email", "value": "tbd@example.com"}, expertise=[], influences={})
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Tuple

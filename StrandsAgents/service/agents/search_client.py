@@ -1,3 +1,23 @@
+import json
+import os
+from typing import List
+from .types import SearchResult
+
+DATA_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "search_results.json")
+
+class SearchClient:
+    async def search(self, keywords: List[str]) -> List[SearchResult]:
+        if not os.path.exists(DATA_FILE):
+            return []
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        kws = [k.lower() for k in keywords]
+        filtered = []
+        for item in data:
+            text = (item.get("title", "") + " " + item.get("snippet", "") + " " + " ".join(item.get("tags", []))).lower()
+            if any(k in text for k in kws) or not kws:
+                filtered.append(item)
+        return filtered[:10]
 from __future__ import annotations
 from typing import List
 import json
