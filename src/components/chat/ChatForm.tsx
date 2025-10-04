@@ -33,7 +33,7 @@ export function ChatForm({
     userSkills: '',
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent | KeyboardEvent) => {
     e.preventDefault();
 
     if (!formData.mainPrompt.trim() || isSubmitting) {
@@ -63,7 +63,10 @@ export function ChatForm({
         },
       };
 
-      const response = await fetch('/api/openai', {
+      const endpoint =
+        process.env.NEXT_PUBLIC_CHAT_API === 'openai' ? '/api/openai' : '/api/strands';
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -93,7 +96,7 @@ export function ChatForm({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
-      handleSubmit(e as any);
+      handleSubmit(e);
     }
   };
 

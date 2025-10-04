@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+pydantic
+strands-agents
+strands-agents-tools
+boto3
+botocore

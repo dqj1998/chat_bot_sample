@@ -1,0 +1,32 @@
+---
+name: Alice Tanaka
+department: R&amp;D
+preferred_contact: email:alice.tanaka@example.com
+contacts:
+  - email: alice.tanaka@example.com
+  - slack: @alice_t
+influences:
+  - Bob Suzuki:0.8
+  - Carol Watanabe:0.6
+expertise: LLM, Next.js, FastAPI
+---
+name: Bob Suzuki
+department: Platform
+preferred_contact: slack:@bob_s
+contacts:
+  - email: bob.suzuki@example.com
+  - slack: @bob_s
+influences:
+  - Alice Tanaka:0.5
+expertise: AWS, Bedrock, DevOps
+---
+name: Carol Watanabe
+department: Frontend
+preferred_contact: email:carol.w@example.com
+contacts:
+  - email: carol.w@example.com
+  - teams: carol.w
+influences:
+  - Alice Tanaka:0.4
+  - Bob Suzuki:0.3
+expertise: Next.js, UX, Prompting
