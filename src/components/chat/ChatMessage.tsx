@@ -67,8 +67,10 @@ export function ChatMessage({ message, className }: ChatMessageProps) {
         {/* メッセージ内容 */}
         <div
           className={cn(
-            'relative rounded-lg px-4 py-3 shadow-sm',
-            isUser ? 'bg-primary text-primary-foreground' : 'bg-muted/50 border'
+            'relative group rounded-lg px-4 py-3 shadow-sm',
+            isUser
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-background border text-foreground'
           )}
         >
           {isUser ? (
@@ -76,36 +78,91 @@ export function ChatMessage({ message, className }: ChatMessageProps) {
             <p className="whitespace-pre-wrap break-words">{message.content}</p>
           ) : (
             // アシスタントメッセージはマークダウン表示
-            <div className="prose prose-sm max-w-none dark:prose-invert">
+            <div className="text-foreground prose prose-sm max-w-none dark:prose-invert">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                  // コードブロックのスタイリング
-                  code: ({ node, className, ...props }) => {
+                  p: ({ children }) => (
+                    <p className="mb-3 last:mb-0">{children}</p>
+                  ),
+                  h1: ({ children }) => (
+                    <h1 className="text-xl font-bold mb-3 mt-4 first:mt-0">
+                      {children}
+                    </h1>
+                  ),
+                  h2: ({ children }) => (
+                    <h2 className="text-lg font-bold mb-2 mt-3 first:mt-0">
+                      {children}
+                    </h2>
+                  ),
+                  h3: ({ children }) => (
+                    <h3 className="text-base font-bold mb-2 mt-3 first:mt-0">
+                      {children}
+                    </h3>
+                  ),
+                  ul: ({ children }) => (
+                    <ul className="list-disc pl-6 mb-3 space-y-1">
+                      {children}
+                    </ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className="list-decimal pl-6 mb-3 space-y-1">
+                      {children}
+                    </ol>
+                  ),
+                  li: ({ children }) => (
+                    <li className="text-current">{children}</li>
+                  ),
+                  code: ({ children, className, ...props }) => {
                     const isInline = !className?.includes('language-');
+                    if (isInline) {
+                      return (
+                        <code
+                          className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-current"
+                          {...props}
+                        >
+                          {children}
+                        </code>
+                      );
+                    }
                     return (
-                      <code
-                        className={cn(
-                          isInline
-                            ? 'bg-muted px-1 py-0.5 rounded text-sm'
-                            : 'block bg-muted p-2 rounded-md text-sm overflow-x-auto',
-                          className
-                        )}
-                        {...props}
-                      />
+                      <pre className="bg-muted p-3 rounded-md overflow-x-auto border my-3">
+                        <code
+                          className="text-sm font-mono text-current"
+                          {...props}
+                        >
+                          {children}
+                        </code>
+                      </pre>
                     );
                   },
-                  // リンクのスタイリング
-                  a: ({ node, ...props }) => (
+                  blockquote: ({ children }) => (
+                    <blockquote className="border-l-4 border-muted pl-4 my-3 italic text-muted-foreground">
+                      {children}
+                    </blockquote>
+                  ),
+                  a: ({ children, href }) => (
                     <a
+                      href={href}
                       className="text-primary underline hover:no-underline"
                       target="_blank"
                       rel="noopener noreferrer"
-                      {...props}
-                    />
+                    >
+                      {children}
+                    </a>
+                  ),
+                  strong: ({ children }) => (
+                    <strong className="font-bold text-current">
+                      {children}
+                    </strong>
+                  ),
+                  em: ({ children }) => (
+                    <em className="italic text-current">{children}</em>
                   ),
                 }}
-              />
+              >
+                {message.content}
+              </ReactMarkdown>
             </div>
           )}
 

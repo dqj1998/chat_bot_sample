@@ -53,7 +53,7 @@ export default function ChatLayout({
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen w-screen flex">
+      <div className="h-screen w-screen overflow-hidden">
         {/* モバイル用サイドバーオーバーレイ */}
         <div
           className={`
@@ -84,39 +84,62 @@ export default function ChatLayout({
           </div>
         </div>
 
-        {/* デスクトップ用サイドバー */}
-        <div className="hidden lg:block">
-          <ChatHistorySideBar
-            histories={chatHistories}
-            currentChatId={currentChatId}
-            isLoading={isLoading}
-          />
-        </div>
+        {/* デスクトップレイアウト - サイドバーとメインコンテンツを横並び */}
+        <div className="hidden lg:flex h-screen">
+          {/* デスクトップ用サイドバー */}
+          <div className="w-80 h-full flex-shrink-0">
+            <ChatHistorySideBar
+              histories={chatHistories}
+              currentChatId={currentChatId}
+              isLoading={isLoading}
+            />
+          </div>
 
-        {/* メインコンテンツエリア */}
-        <div className="flex-1 flex justify-center">
-          <div className="w-full max-w-[800px] flex flex-col min-h-screen">
-            {/* ヘッダー */}
-            <header className="border-b bg-background/80 backdrop-blur-sm p-4">
-              <div className="flex items-center gap-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="lg:hidden"
-                  onClick={toggleSidebar}
-                >
-                  <Menu className="h-4 w-4" />
-                </Button>
-                <div>
-                  <h1 className="font-semibold">AI Assistant</h1>
-                  <p className="text-sm text-muted-foreground">
+          {/* メインコンテンツエリア - 残り領域全体を使用 */}
+          <div className="flex-1 flex flex-col h-full">
+            {/* ヘッダー - 固定表示（コンパクト） */}
+            <header className="fixed top-0 right-0 left-0 z-40 border-b bg-background/95 backdrop-blur-sm px-4 py-2">
+              <div className="flex items-center gap-3 max-w-fit">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-sm font-semibold">AI Assistant</h1>
+                  <span className="text-xs text-muted-foreground">
                     {currentChatId ? 'アクティブなチャット' : '新しいチャット'}
-                  </p>
+                  </span>
                 </div>
               </div>
             </header>
 
-            {/* 子コンポーネント（ページコンテンツ） */}
+            {/* コンテンツエリア */}
+            <div className="flex-1 flex flex-col pt-[49px] w-full">
+              {children}
+            </div>
+          </div>
+        </div>
+
+        {/* モバイルレイアウト - 元のレイアウトを維持 */}
+        <div className="lg:hidden flex flex-col h-screen">
+          {/* ヘッダー - 固定表示（コンパクト） */}
+          <header className="fixed top-0 right-0 left-0 z-40 border-b bg-background/95 backdrop-blur-sm px-4 py-2">
+            <div className="flex items-center gap-3 max-w-fit">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={toggleSidebar}
+              >
+                <Menu className="h-4 w-4" />
+              </Button>
+              <div className="flex items-center gap-2">
+                <h1 className="text-sm font-semibold">AI Assistant</h1>
+                <span className="text-xs text-muted-foreground">
+                  {currentChatId ? 'アクティブなチャット' : '新しいチャット'}
+                </span>
+              </div>
+            </div>
+          </header>
+
+          {/* コンテンツエリア */}
+          <div className="flex-1 flex flex-col pt-[49px] w-full">
             {children}
           </div>
         </div>

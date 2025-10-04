@@ -6,6 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
@@ -14,7 +21,15 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import { Plus, MessageSquare, User, Clock } from 'lucide-react';
+import {
+  Plus,
+  MessageSquare,
+  User,
+  Clock,
+  Settings,
+  LogOut,
+  ChevronDown,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -40,6 +55,16 @@ export function ChatHistorySideBar({
     if (chatId !== currentChatId) {
       router.push(`/chat/${chatId}`);
     }
+  };
+
+  const handleProfileEdit = () => {
+    // プロフィール編集機能（未実装）
+    console.log('プロフィール編集が選択されました');
+  };
+
+  const handleSignOut = () => {
+    // サインアウト機能（未実装）
+    console.log('サインアウトが選択されました');
   };
 
   const formatDate = (dateString: string) => {
@@ -69,17 +94,37 @@ export function ChatHistorySideBar({
   return (
     <Sidebar className="w-80 border-r">
       <SidebarHeader className="p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <Avatar className="h-8 w-8">
-            <AvatarFallback>
-              <User className="h-4 w-4" />
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="text-sm font-medium">ユーザー</p>
-            <p className="text-xs text-muted-foreground">AI アシスタント</p>
-          </div>
-        </div>
+        {/* ユーザープロフィール - ドロップダウンメニュー */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="flex items-center gap-3 mb-4 w-full justify-start p-2 h-auto"
+            >
+              <Avatar className="h-8 w-8">
+                <AvatarFallback>
+                  <User className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-medium">ユーザー</p>
+                <p className="text-xs text-muted-foreground">AI アシスタント</p>
+              </div>
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="start">
+            <DropdownMenuItem onClick={handleProfileEdit}>
+              <Settings className="mr-2 h-4 w-4" />
+              プロフィール編集
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
+              <LogOut className="mr-2 h-4 w-4" />
+              サインアウト
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <Button
           onClick={handleNewChat}
